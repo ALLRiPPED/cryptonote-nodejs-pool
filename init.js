@@ -6,9 +6,9 @@
  **/
 
 // Load needed modules
-let fs = require('fs');
-let cluster = require('cluster');
-let os = require('os');
+var fs = require('fs');
+var cluster = require('cluster');
+var os = require('os');
 
 // Load configuration
 require('./lib/configReader.js');
@@ -17,9 +17,9 @@ require('./lib/configReader.js');
 require('./lib/logger.js');
 
 // Initialize redis database client
-let redis = require('redis');
+var redis = require('redis');
 
-let redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
+var redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
 global.redisClient = redis.createClient(config.redis.port, config.redis.host, { db: redisDB, auth_pass: config.redis.auth });
 
 // Load pool modules
@@ -48,19 +48,19 @@ if (cluster.isWorker){
 }
 
 // Initialize log system
-let logSystem = 'master';
+var logSystem = 'master';
 require('./lib/exceptionWriter.js')(logSystem);
 
 // Pool informations
 log('info', logSystem, 'Starting Cryptonote Node.JS pool version %s', [version]);
  
 // Run a single module ?
-let singleModule = (function(){
-   let validModules = ['pool', 'api', 'unlocker', 'payments', 'chartsDataCollector', 'telegramBot'];
+var singleModule = (function(){
+    var validModules = ['pool', 'api', 'unlocker', 'payments', 'chartsDataCollector', 'telegramBot'];
 
-    for (let i = 0; i < process.argv.length; i++){
+    for (var i = 0; i < process.argv.length; i++){
         if (process.argv[i].indexOf('-module=') === 0){
-           let moduleName = process.argv[i].split('=')[1];
+            var moduleName = process.argv[i].split('=')[1];
             if (validModules.indexOf(moduleName) > -1)
                 return moduleName;
 
@@ -119,12 +119,12 @@ function checkRedisVersion(callback){
             log('error', logSystem, 'Redis version check failed');
             return;
         }
-       let parts = response.split('\r\n');
-       let version;
-       let versionString;
-        for (let i = 0; i < parts.length; i++){
+        var parts = response.split('\r\n');
+        var version;
+        var versionString;
+        for (var i = 0; i < parts.length; i++){
             if (parts[i].indexOf(':') !== -1){
-               let valParts = parts[i].split(':');
+                var valParts = parts[i].split(':');
                 if (valParts[0] === 'redis_version'){
                     versionString = valParts[1];
                     version = parseFloat(versionString);
@@ -155,7 +155,7 @@ function spawnPoolWorkers(){
         return;
     }
 
-   let numForks = (function(){
+    var numForks = (function(){
         if (!config.poolServer.clusterForks)
             return 1;
         if (config.poolServer.clusterForks === 'auto')
@@ -165,10 +165,10 @@ function spawnPoolWorkers(){
         return config.poolServer.clusterForks;
     })();
 
-   let poolWorkers = {};
+    var poolWorkers = {};
 
-   let createPoolWorker = function(forkId){
-       let worker = cluster.fork({
+    var createPoolWorker = function(forkId){
+        var worker = cluster.fork({
             workerType: 'pool',
             forkId: forkId
         });
@@ -193,8 +193,8 @@ function spawnPoolWorkers(){
         });
     };
 
-   let i = 1;
-   let spawnInterval = setInterval(function(){
+    var i = 1;
+    var spawnInterval = setInterval(function(){
         createPoolWorker(i.toString());
         i++;
         if (i - 1 === numForks){
@@ -210,7 +210,7 @@ function spawnPoolWorkers(){
 function spawnBlockUnlocker(){
     if (!config.blockUnlocker || !config.blockUnlocker.enabled) return;
 
-   let worker = cluster.fork({
+    var worker = cluster.fork({
         workerType: 'blockUnlocker'
     });
     worker.on('exit', function(code, signal){
@@ -227,7 +227,7 @@ function spawnBlockUnlocker(){
 function spawnPaymentProcessor(){
     if (!config.payments || !config.payments.enabled) return;
 
-   let worker = cluster.fork({
+    var worker = cluster.fork({
         workerType: 'paymentProcessor'
     });
     worker.on('exit', function(code, signal){
@@ -244,7 +244,7 @@ function spawnPaymentProcessor(){
 function spawnApi(){
     if (!config.api || !config.api.enabled) return;
 
-   let worker = cluster.fork({
+    var worker = cluster.fork({
         workerType: 'api'
     });
     worker.on('exit', function(code, signal){
@@ -261,7 +261,7 @@ function spawnApi(){
 function spawnChartsDataCollector(){
     if (!config.charts) return;
 
-   let worker = cluster.fork({
+    var worker = cluster.fork({
         workerType: 'chartsDataCollector'
     });
     worker.on('exit', function(code, signal){
@@ -278,7 +278,7 @@ function spawnChartsDataCollector(){
 function spawnTelegramBot(){
     if (!config.telegram || !config.telegram.enabled || !config.telegram.token) return;
 
-   let worker = cluster.fork({
+    var worker = cluster.fork({
         workerType: 'telegramBot'
     });
     worker.on('exit', function(code, signal){
