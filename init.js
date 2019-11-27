@@ -22,7 +22,7 @@ var redis = require('redis');
 var redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
 global.redisClient = redis.createClient(config.redis.port, config.redis.host, { db: redisDB, auth_pass: config.redis.auth });
 
-if (typeof config.childPools !== 'undefined')
+if ((typeof config.poolServer.mergedMining !== 'undefined' && config.poolServer.mergedMining) && typeof config.childPools !== 'undefined')
     config.childPools = config.childPools.filter(pool => pool.enabled);
 else
     config.childPools = [];
@@ -231,14 +231,8 @@ function spawnChildDaemons(){
         return;
     }
 
-    var numForks = (function(){
-        if (!config.poolServer.mergedMining)
-            return 0;
-        if (typeof config.childPools !== 'undefined') {
-	    return config.childPools.length
-	}
-        return 0;
-    })();
+    let numForks = config.childPools.length;
+    if (numForks === 0) return;
     var daemonWorkers = {};
 
     var createDaemonWorker = function(poolId){
