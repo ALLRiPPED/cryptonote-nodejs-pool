@@ -22,8 +22,10 @@ var redis = require('redis');
 var redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
 global.redisClient = redis.createClient(config.redis.port, config.redis.host, { db: redisDB, auth_pass: config.redis.auth });
 
-if (typeof config.childPools !== 'undefined')
-    config.childPools = config.childPools.filter(pool => pool.enabled)
+if ((typeof config.poolServer.mergedMining !== 'undefined' && config.poolServer.mergedMining) && typeof config.childPools !== 'undefined')
+    config.childPools = config.childPools.filter(pool => pool.enabled);
+else
+    config.childPools = [];
 
 // Load pool modules
 if (cluster.isWorker){
@@ -62,6 +64,10 @@ require('./lib/exceptionWriter.js')(logSystem);
 
 // Pool informations
 log('info', logSystem, 'Starting Cryptonote Node.JS pool version %s', [version]);
+
+// Developer donations
+if (devFee < 0.2)
+    log('info', logSystem, 'Developer donation \(devDonation\) is set to %d\%, Please consider raising it to 0.2\% or higher !!!', [devFee]);
  
 // Run a single module ?
 var singleModule = (function(){
@@ -229,14 +235,8 @@ function spawnChildDaemons(){
         return;
     }
 
-    var numForks = (function(){
-        if (!config.poolServer.mergedMining)
-            return 0;
-        if (typeof config.childPools !== 'undefined') {
-	    return config.childPools.length
-	}
-        return 0;
-    })();
+    let numForks = config.childPools.length;
+    if (numForks === 0) return;
     var daemonWorkers = {};
 
     var createDaemonWorker = function(poolId){
