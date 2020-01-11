@@ -1778,8 +1778,8 @@ function workerstats_FetchAddressStats(longpoll, stats, api, xhrAddressPoll){
 
             let share_pct = userRoundHashes * 100 / poolRoundHashes;
             let score_pct = userRoundScore * 100 / poolRoundScore;
-            updateText(`yourRoundShareProportion${stats.config.coin}`, Math.round(share_pct * 1000) / 1000);
-            updateText(`yourRoundScoreProportion${stats.config.coin}`, Math.round(score_pct * 1000) / 1000);
+            updateText(`yourRoundShareProportion${stats.config.coin}`, isNaN(share_pct) ? 0.0 : Math.round(share_pct * 1000) / 1000);
+            updateText(`yourRoundScoreProportion${stats.config.coin}`, isNaN(score_pct) ? 0.0 : Math.round(score_pct * 1000) / 1000);
             if (!lastStats.config.slushMiningEnabled) {
                 $(`#slush_round_info${stats.config.coin}`).hide();
             }
@@ -2215,20 +2215,21 @@ function home_InitTemplate(parentStats, siblingStats) {
     updateText(`networkHashrate${coin}`, getReadableHashRateString(parentStats.network.difficulty / parentStats.config.coinDifficultyTarget) + '/sec');
     updateText(`networkDifficulty${coin}`, formatNumber(parentStats.network.difficulty.toString(), ' '));
     updateText(`blockchainHeight${coin}`, formatNumber(parentStats.network.height.toString(), ' '));
-    updateText(`networkLastReward${coin}`, getReadableCoin(parentStats, parentStats.lastblock.reward));
+    let rewardMinusNetworkFee = parentStats.lastblock.reward - (parentStats.lastblock.reward * (parentStats.config.networkFee ? parentStats.config.networkFee / 100 : 0))
+    updateText(`networkLastReward${coin}`, getReadableCoin(parentStats, rewardMinusNetworkFee));
 
 
 
     Object.keys(siblingStats).forEach(key => {
         home_GenerateNetworkStats(key, siblingStats[key].config.symbol)
-        
+
         minerInfo.push({blocks: siblingStats[key].pool.totalBlocks.toString(), 
                         blocksSolo: siblingStats[key].pool.totalBlocksSolo.toString(),
                         coin: key,
                         symbol: siblingStats[key].config.symbol, 
                         miners: siblingStats[key].pool.miners.toString(),
                         minersSolo: siblingStats[key].pool.minersSolo.toString()})
-        
+
         efforts.push({coin: key, effort: `${(siblingStats[key].pool.roundHashes / siblingStats[key].network.difficulty * 100).toFixed(1)}%`, symbol: siblingStats[key].config.symbol});     
 
         if (siblingStats[key].pool.lastBlockFound) {
@@ -2247,7 +2248,7 @@ function home_InitTemplate(parentStats, siblingStats) {
     })
 
     sortElementList($(`#networkStats`), $(`#networkStats>div`), siblingStats)
-    
+
     if ($(`#poolDetails > div`).length == 0) {
         let template = $('#poolDetailTemplate').html()
         Mustache.parse(template)
@@ -2261,7 +2262,7 @@ function home_InitTemplate(parentStats, siblingStats) {
         let rendered = Mustache.render(template, {coin:parentStats.config.coin, blocks: minerInfo, efforts: efforts})
         $(`#mainPoolStats`).append(rendered)
     }
-    
+
 
     if (lastBlockFound) {
         $('#poolLastBlockFound').timeago('update', new Date(lastBlockFound).toISOString());

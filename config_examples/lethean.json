@@ -1,17 +1,20 @@
 {
     "poolHost": "your.pool.host",
 
-    "coin": "graft",
-    "symbol": "GRFT",
-    "coinUnits": 10000000000,
+    "coin": "Lethean",
+    "symbol": "LTHN",
+    "coinUnits": 100000000,
     "coinDecimalPlaces": 4,
     "coinDifficultyTarget": 120,
-    "blockchainExplorer": "http://blockexplorer.arqma.com/block/{id}",
-    "transactionExplorer": "http://blockexplorer.arqma.com/tx/{id}",
+    "blockchainExplorer": "https://explorer.lethean.io/search?value={id}",
+    "transactionExplorer": "https://explorer.lethean.io/search?value={id}",
     "daemonType": "default",
     "cnAlgorithm": "cryptonight",
-    "cnVariant": 15,
+    "cnVariant": 13,
     "cnBlobType": 0,
+    "includeHeight": true,
+    "includeAlgo": "cn/r",
+    "isRandomX": false,
 
     "logging": {
         "files": {
@@ -30,7 +33,8 @@
         "mergedMining": false,
         "clusterForks": "auto",
         "poolAddress": "** Your pool wallet address **",
-        "intAddressPrefix": 91,
+        "intAddressPrefix": "129",
+        "subAddressPrefix": "",
         "blockRefreshInterval": 1000,
         "minerTimeout": 900,
         "sslCert": "./cert.pem",
@@ -69,6 +73,7 @@
                 "desc": "SSL connection",
                 "ssl": true
             }
+
         ],
         "varDiff": {
             "minDiff": 100,
@@ -80,7 +85,7 @@
         },
         "paymentId": {
             "addressSeparator": ".", 
-            "validation": false,
+            "validation": true,
             "validations": ["1,16", "64"],
             "ban": true
         },
@@ -113,24 +118,24 @@
         "enabled": true,
         "interval": 1800,
         "maxAddresses": 50,
-        "mixin": 5,
+        "mixin": 4,
         "priority": 0,
-        "transferFee": 4000000000,
+        "transferFee": 500000,
         "dynamicTransferFee": true,
         "minerPayFee" : true,
-        "minPayment": 100000000000,
+        "minPayment": 100000000,
         "maxPayment": null,
         "maxTransactionAmount": 0,
-        "denomination": 1000000000
+        "denomination": 10000000
     },
 
     "blockUnlocker": {
         "enabled": true,
         "interval": 30,
-        "depth": 60,
-        "poolFee": 0.8,
-        "devDonation": 0.2,
-        "networkFee": 0.0
+        "depth": 40,
+        "poolFee": 0,
+        "devDonation": 0,
+        "networkFee": 0.0 
     },
 
     "api": {
@@ -152,12 +157,12 @@
 
     "daemon": {
         "host": "127.0.0.1",
-        "port": 18981
+        "port": 48782
     },
 
     "wallet": {
         "host": "127.0.0.1",
-        "port": 18982
+        "port": 48781
     },
 
     "redis": {
@@ -237,9 +242,8 @@
         },
         "botCommands": {
             "stats": "/stats",
-            "report": "/report",
-            "notify": "/notify",
-            "blocks": "/blocks"
+            "enable": "/enable",
+            "disable": "/disable"
         }
     },
     
